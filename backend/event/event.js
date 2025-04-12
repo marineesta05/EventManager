@@ -1,12 +1,23 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const http = require('http'); 
+const socketIo = require('socket.io');
 dotenv.config({ path: '../.env' });
 const sql = require('../database.js');
 
 const app = express();
+const server = http.createServer(app);  
+
+const io = socketIo(server, {
+    cors: {
+        origin: "http://localhost:3000", 
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true
+    }
+});
+
 app.use(cors());
 app.use(express.json()); 
 
@@ -42,6 +53,17 @@ app.post('/events', authenticateToken, checkAdminRole, async (req, res) => {
             VALUES (${image}, ${title}, ${location}, ${datetime}, ${capacity})
             RETURNING id, image, title, location, datetime, capacity
         `;
+        const eventId = result[0].id;
+
+        
+        const seatValues = Array.from({ length: capacity }, (_, i) => [eventId, i + 1]);
+
+        await sql`
+            INSERT INTO seats (event_id, seat_number)
+            VALUES ${sql(seatValues)}
+        `;
+
+        io.emit('eventAdded', result[0]);
         res.status(201).json(result[0]);
     } catch (error) {
         console.error('Error creating event:', error);
@@ -76,4 +98,51 @@ app.get('/events/:id', async (req, res) => {
     }
 });
 
-app.listen(3002, () => console.log("Event Service running on port 3002"));
+app.put('/events/:id', authenticateToken, checkAdminRole, async (req, res) => {
+    const { id } = req.params;
+    const { title, location, datetime, capacity } = req.body;
+    try{
+        const result = await sql`UPDATE events SET 
+            title = COALESCE(${title}, title),
+            location = COALESCE(${location}, location),
+            datetime = COALESCE(${datetime}, datetime),
+            capacity = COALESCE(${capacity}, capacity)
+        WHERE id = ${id}
+        RETURNING id, title, location, datetime, capacity
+        `;
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+        io.emit('eventUpdated', result[0]);
+        res.status(200).json(result[0]);
+    } catch (error) {
+        console.error('Error updating event:', error);
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.delete('/events/:id', authenticateToken, checkAdminRole, async (req, res) => {
+    const { id } = req.params;
+    try{
+        const result = await sql`
+            DELETE FROM events WHERE id = ${id} RETURNING id
+        `;
+        if (result.length === 0) {
+            return res.status(404).json({ message: 'Event not found' });
+        }
+        io.emit('eventDeleted', { id });
+        res.status(200).json({ message: 'Event deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        res.status(400).json({ error: error.message });
+    }
+});
+io.on('connection', (socket) => {
+    console.log('A client connected:', socket.id);
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+    });
+});
+
+server.listen(3002, () => console.log("Event Service running on port 3002"));

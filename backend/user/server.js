@@ -23,7 +23,7 @@ app.post('/register', async (req, res) => {
             RETURNING id, email, role
         `;
         const user = result[0];
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' }); 
+        const token = jwt.sign({ userId: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' }); 
 
         res.status(201).json({ token, user });
     } catch (error) {
@@ -42,11 +42,11 @@ app.post('/login', async (req, res) => {
         return res.status(401).json({ message: "Invalid email or password" });
     }
     const token = jwt.sign(
-        { userId: user.id }, 
+        { userId: user.id, role: user.role }, 
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
     );
-    res.json({ token });
+    res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
 });
 
 
