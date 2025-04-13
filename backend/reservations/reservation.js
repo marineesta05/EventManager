@@ -1,10 +1,13 @@
 const express = require("express");
+const router = express.Router();
 const http = require("http");
 const dotenv = require('dotenv');
 dotenv.config({ path: '../.env' });
 const { Server } = require("socket.io");
 const cors = require("cors");
 const sql = require("../database.js"); 
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 
 const app = express();
@@ -45,7 +48,7 @@ app.get("/events/:id/seats", async (req, res) => {
 
 
 app.post("/reserve", async (req, res) => {
-    const { user_id, event_id, seat_numbers } = req.body;
+    const { user_id, event_id, seat_numbers, email } = req.body;
 
     try {
         const seatIds = [];
@@ -80,14 +83,60 @@ app.post("/reserve", async (req, res) => {
                 seatIds.push(seatId);
             }
         });
-
         
+        const eventDetails = await sql`
+            SELECT title, datetime, location FROM events WHERE id = ${event_id}
+        `;
+        
+        if (eventDetails.length > 0) {
+            let userEmail = email;
+            if (!userEmail) {
+                const userInfo = await sql`
+                    SELECT email FROM users WHERE id = ${user_id}
+                `;
+                if (userInfo.length > 0 && userInfo[0].email) {
+                    userEmail = userInfo[0].email;
+                }
+            }
+            console.log("EMAIL FOURNI OU TROUVÉ:", userEmail);
+
+            if (userEmail) {
+                const formattedDate = new Date(eventDetails[0].datetime).toLocaleString('fr-FR');
+                
+                const msg = {
+                    to: userEmail,
+                    from: process.env.SENDGRID_FROM_EMAIL,
+                    subject: `Confirmation de réservation - ${eventDetails[0].title}`,
+                    text: `Bonjour,\n\nVotre réservation pour l'événement "${eventDetails[0].title}" a été confirmée.\n\nDétails:\n- Date: ${formattedDate}\n- Lieu: ${eventDetails[0].location}\n- Places: ${seat_numbers.join(', ')}\n\nMerci pour votre réservation!\n\nCordialement,\nL'équipe d'organisation`,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                            <h2 style="color: #333; text-align: center;">Confirmation de réservation</h2>
+                            <p>Bonjour,</p>
+                            <p>Votre réservation pour l'événement <strong>${eventDetails[0].title}</strong> a été confirmée.</p>
+                            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                                <h3 style="margin-top: 0; color: #555;">Détails de l'événement:</h3>
+                                <p><strong>Date:</strong> ${formattedDate}</p>
+                                <p><strong>Lieu:</strong> ${eventDetails[0].location}</p>
+                                <p><strong>Places réservées:</strong> ${seat_numbers.join(', ')}</p>
+                            </div>
+                            <p>Merci pour votre réservation!</p>
+                            <p>Cordialement,<br>L'équipe d'organisation</p>
+                        </div>
+                    `
+                };
+                console.log("Envoi du mail avec :", msg);
+
+                await sgMail.send(msg);
+                console.log("Confirmation email sent to:", userEmail);
+            }
+        }
+
         io.emit("seat_reserved", {
             eventId: event_id,
             seatIds: seat_numbers,
         });
 
-        res.status(200).json({ message: "Seats reserved", reserved: seat_numbers });
+        res.status(200).json({ message: "Seats reserved and confirmation email sent", reserved: seat_numbers });
     } catch (err) {
         console.error("Reservation error:", err.message);
         res.status(400).json({ error: err.message });
