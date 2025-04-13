@@ -102,17 +102,20 @@ app.put('/events/:id', authenticateToken, checkAdminRole, async (req, res) => {
     const { id } = req.params;
     const { title, location, datetime, capacity } = req.body;
     try{
-        const result = await sql`UPDATE events SET 
-            title = COALESCE(${title}, title),
-            location = COALESCE(${location}, location),
-            datetime = COALESCE(${datetime}, datetime),
-            capacity = COALESCE(${capacity}, capacity)
-        WHERE id = ${id}
-        RETURNING id, title, location, datetime, capacity
+        const result = await sql`
+            UPDATE events SET 
+                title = COALESCE(${title}, title),
+                location = COALESCE(${location}, location),
+                datetime = COALESCE(${datetime}, datetime),
+                capacity = COALESCE(${capacity}, capacity)
+            WHERE id = ${id}
+            RETURNING id, title, location, datetime, capacity
         `;
+
         if (result.length === 0) {
             return res.status(404).json({ message: 'Event not found' });
         }
+        console.log('Event updated:', result[0]);
         io.emit('eventUpdated', result[0]);
         res.status(200).json(result[0]);
     } catch (error) {
