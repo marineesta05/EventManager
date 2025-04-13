@@ -51,6 +51,11 @@ const Navbar = () => {
                         <Link to="/dashboard" style={{ color: "white", textDecoration: "none" }}>
                             Dashboard
                         </Link>
+                        {isAdmin && (
+                            <Link to="/users" style={{ color: "white", textDecoration: "none" }}>
+                                Users
+                            </Link>
+                        )}
                         <button 
                             onClick={handleLogout}
                             style={{

@@ -20,7 +20,13 @@ const authenticateToken = (req, res, next) => {
       req.user = user;
       next();
     });
-  };
+};
+function checkAdminRole(req, res, next) {
+  if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Accès interdit : admin uniquement' });
+  }
+  next(); 
+}
   
   app.get('/my-tickets', authenticateToken, async (req, res) => {
       const userId = req.user.userId; 
@@ -49,5 +55,37 @@ const authenticateToken = (req, res, next) => {
       }
   });
 
-  
+
+  app.get('/admin/users', authenticateToken, checkAdminRole, async (req, res) => {
+    try {
+        const users = await sql`SELECT id, email FROM users`;
+        const reservations = await sql`
+            SELECT 
+                reservations.user_id,
+                events.title AS event_title,
+                events.datetime,
+                events.location,
+                seats.seat_number
+            FROM reservations
+            INNER JOIN events ON reservations.event_id = events.id
+            INNER JOIN seats ON reservations.seat_id = seats.id
+        `;
+        const userMap = users.map(user => ({
+            ...user,
+            reservations: reservations
+                .filter(r => r.user_id === user.id)
+                .map(r => ({
+                    event_title: r.event_title,
+                    seat_number: r.seat_number,
+                    datetime: r.datetime,
+                    location: r.location
+                }))
+        }));
+
+        res.status(200).json(userMap);
+    } catch (error) {
+        console.error("Erreur dans /admin/users :", error.message);
+        res.status(500).json({ error: "Erreur serveur" });
+    }
+});
 app.listen(3004, () => console.log("Tickets Service running on port 3004"));

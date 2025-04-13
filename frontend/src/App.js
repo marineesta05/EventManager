@@ -7,6 +7,7 @@ import Home from "./pages/home";
 import Event from "./pages/createEvent";
 import EventId from "./pages/event"
 import Update from "./pages/updateEvent";
+import Users from "./pages/Users";
 import Navbar from "./pages/navBar";
 import Dashboard from "./pages/dashboard";
 import "./App.css";
@@ -30,6 +31,7 @@ function App() {
           <Route path="/event/:id" element={<EventId />} />
           <Route path="/updateEvent/:id" element={<Update />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/users" element={<Users />} />
           
         </Routes>
     </Router>
