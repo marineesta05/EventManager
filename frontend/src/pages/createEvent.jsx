@@ -39,7 +39,7 @@ const Event = () => {
             if (response.status === 201) {
                 setSuccess("Event created successfully!");
                 navigate("/home"); 
-                setFormData({title: "", location: "", datetime: "", capacity: ""}); 
+                setFormData({image:"", title: "", location: "", datetime: "", capacity: ""}); 
             }
         } catch (err) {
             setError(err.response?.data?.message || "An error occurred. Please try again.");
@@ -66,7 +66,7 @@ const Event = () => {
                 <div>
                     <label htmlFor="title">title:</label>
                     <input
-                        type="title"
+                        type="text"
                         id="title"
                         name="title"
                         value={formData.title}
@@ -77,7 +77,7 @@ const Event = () => {
                 <div>
                     <label htmlFor="location">location:</label>
                     <input
-                        type="location"
+                        type="text"
                         id="location"
                         name="location"
                         value={formData.location}

@@ -95,7 +95,7 @@ const UpdateEvent = () => {
                 <div>
                     <label htmlFor="datetime">datetime :</label>
                     <input
-                        type="datetime-local"
+                        type="date"
                         id="datetime"
                         name="datetime"
                         value={formData.datetime}
