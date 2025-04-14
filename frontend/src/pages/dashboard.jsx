@@ -79,7 +79,7 @@ const Dashboard = () => {
                     <button 
                         onClick={() => navigate("/")}
                         style={{
-                            backgroundColor: "#007bff",
+                            backgroundColor: "#28a745",
                             color: "white",
                             border: "none",
                             padding: "10px 20px",
@@ -137,7 +137,7 @@ const Dashboard = () => {
                                 <button 
                                     onClick={() => navigate(`/event/${event.id}`)}
                                     style={{
-                                        backgroundColor: "#007bff",
+                                        backgroundColor: "gray",
                                         color: "white",
                                         border: "none",
                                         padding: "8px 15px",

@@ -226,7 +226,7 @@ const Home = () => {
                             position: 'absolute',
                             top: '40px', 
                             right: '0',
-                            backgroundColor: 'white',
+                            backgroundColor: 'gray',
                             border: '1px solid #ccc',
                             borderRadius: '8px',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
@@ -245,7 +245,7 @@ const Home = () => {
                                             fontSize: "12px",
                                             padding: "5px 10px",
                                             border: "none",
-                                            backgroundColor: "#f44336",
+                                            backgroundColor: "#c82333",
                                             color: "white",
                                             borderRadius: "4px",
                                             cursor: "pointer"
@@ -262,7 +262,7 @@ const Home = () => {
                                         <li key={notif.id} style={{ 
                                             marginBottom: '8px', 
                                             fontSize: '14px',
-                                            backgroundColor: notif.type === 'add' ? '#e6fffa' : 
+                                            backgroundColor: notif.type === 'add' ? 'green' : 
                                                            notif.type === 'update' ? '#e6f7ff' : '#fff1f0',
                                             padding: '8px',
                                             borderRadius: '4px'
@@ -288,7 +288,7 @@ const Home = () => {
                 <button 
                     onClick={() => navigate('/createEvent')}
                     style={{
-                        backgroundColor: "#007bff",
+                        backgroundColor: "#5e35b1",
                         color: "white",
                         padding: "8px 16px",
                         border: "none",
@@ -331,7 +331,7 @@ const Home = () => {
                                 <button 
                                     onClick={() => navigate(`/event/${event.id}`)}
                                     style={{
-                                        backgroundColor: "#28a745",
+                                        backgroundColor: "gray",
                                         color: "white",
                                         padding: "8px 16px",
                                         border: "none",
@@ -348,7 +348,7 @@ const Home = () => {
                                         <button 
                                             onClick={() => handleEdit(event.id)}
                                             style={{
-                                                backgroundColor: "#007bff",
+                                                backgroundColor: "gray",
                                                 color: "white",
                                                 padding: "8px 16px",
                                                 border: "none",
@@ -362,7 +362,7 @@ const Home = () => {
                                         <button 
                                             onClick={() => handleDelete(event.id)}
                                             style={{
-                                                backgroundColor: "#dc3545",
+                                                backgroundColor: "#c82333",
                                                 color: "white",
                                                 padding: "8px 16px",
                                                 border: "none",

@@ -190,11 +190,12 @@ const EventId = () => {
                         height: "200px", 
                         objectFit: "cover",
                         borderRadius: "8px",
-                        marginBottom: "15px"
+                        marginBottom: "15px",
+                        border: "none",
                     }} 
                 />
-                <h1 style={{ fontSize: "2rem", marginBottom: "10px" }}>{event.title}</h1>
-                <div className="event-info" style={{ textAlign: "center" }}>
+                <h1 style={{ fontSize: "2rem", marginBottom: "10px", color: "gray" }}>{event.title}</h1>
+                <div className="event-info" style={{ textAlign: "center", color: "gray" }}>
                     <p style={{ fontSize: "1.2rem", marginBottom: "5px" }}>
                         <strong>Date:</strong> {new Date(event.datetime).toLocaleString()}
                     </p>
@@ -218,11 +219,11 @@ const EventId = () => {
                     justifyContent: "center",
                     gap: "15px"
                 }}>
-                    <h3 style={{ margin: "0 0 15px 0", width: "100%", textAlign: "center" }}>Administration</h3>
+                    <h3 style={{ margin: "0 0 15px 0", width: "100%", textAlign: "center", color: "gray" }}>Administration</h3>
                     <button 
                         onClick={handleUpdate}
                         style={{ 
-                            backgroundColor: "#007bff", 
+                            backgroundColor: "gray", 
                             color: "white", 
                             border: "none", 
                             padding: "10px 20px", 
@@ -236,7 +237,7 @@ const EventId = () => {
                     <button 
                         onClick={handleDelete}
                         style={{ 
-                            backgroundColor: "#dc3545", 
+                            backgroundColor: "#c82333", 
                             color: "white", 
                             border: "none", 
                             padding: "10px 20px", 

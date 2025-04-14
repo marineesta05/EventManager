@@ -10,6 +10,7 @@ import Update from "./pages/updateEvent";
 import Users from "./pages/Users";
 import Navbar from "./pages/navBar";
 import Dashboard from "./pages/dashboard";
+import './styles/appcss.css';
 import "./App.css";
 
 const token = localStorage.getItem("token");

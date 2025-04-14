@@ -29,23 +29,12 @@ const Navbar = () => {
     };
 
     return (
-        <nav style={{
-            backgroundColor: "#007bff",
-            color: "white",
-            padding: "15px 20px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
-        }}>
-        
+        <nav>
             
             <div className="nav-links" style={{ display: "flex", gap: "20px" }}>
                 <Link to="/home" style={{ color: "white", textDecoration: "none" }}>
                     Home
                 </Link>
-                
-                
                 {isLoggedIn ? (
                     <>
                         <Link to="/dashboard" style={{ color: "white", textDecoration: "none" }}>
@@ -56,17 +45,7 @@ const Navbar = () => {
                                 Users
                             </Link>
                         )}
-                        <button 
-                            onClick={handleLogout}
-                            style={{
-                                background: "transparent",
-                                border: "1px solid white",
-                                color: "white",
-                                padding: "5px 10px",
-                                borderRadius: "5px",
-                                cursor: "pointer"
-                            }}
-                        >
+                        <button className="nav-logout-btn" onClick={handleLogout}>
                             Logout
                         </button>
                     </>

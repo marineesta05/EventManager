@@ -20,7 +20,7 @@ const Users = () => {
 
             const decoded = jwtDecode(token);
             if (decoded.role !== "admin") {
-                navigate("/home"); // ou une page "Unauthorized"
+                navigate("/home"); 
                 return;
             }
 
@@ -32,7 +32,7 @@ const Users = () => {
                     }
                 });
 
-                setUsers(response.data); // Chaque user devrait avoir un champ "reservations" si tu les renvoies du back
+                setUsers(response.data); 
             } catch (err) {
                 console.error("Erreur lors du chargement des utilisateurs", err);
                 setError("Impossible de récupérer les utilisateurs");
@@ -44,7 +44,7 @@ const Users = () => {
         fetchUsers();
     }, [navigate]);
 
-    if (loading) return <div style={{ textAlign: "center", padding: "50px" }}>Chargement...</div>;
+    if (loading) return <div style={{ textAlign: "center", padding: "50px", color: "gray" }}>Chargement...</div>;
     if (error) return <div style={{ color: "red", textAlign: "center" }}>{error}</div>;
 
     return (
@@ -54,6 +54,7 @@ const Users = () => {
             {users.map(user => (
                 <div key={user.id} style={{
                     marginBottom: "30px",
+                    color: "gray",
                     padding: "20px",
                     backgroundColor: "#f9f9f9",
                     borderRadius: "10px",
