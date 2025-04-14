@@ -1,0 +1,692 @@
+/* Base styles */
+:root {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --accent-primary: #7e57c2;
+    --accent-secondary: #5e35b1;
+    --success: #4caf50;
+    --error: #f44336;
+    --warning: #ff9800;
+    --info: #2196f3;
+    --card-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+body {
+    font-family: 'Roboto', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* Layout */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Navbar */
+nav {
+    background-color: rgb(96, 95, 95);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(110, 109, 109, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+nav a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    padding: 6px 10px;
+    border-radius: var(--border-radius);
+}
+
+nav a:hover {
+    color: var(--accent-primary);
+    background-color: rgba(126, 87, 194, 0.1);
+}
+
+/* Style pour le bouton de déconnexion */
+.nav-logout-btn {
+    background-color: transparent;
+    border: 1px solid white;
+    color: white;
+    padding: 7px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Forms */
+form {
+    background-color: var(--bg-secondary);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+form div {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--bg-tertiary);
+    border-radius: var(--border-radius);
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    box-sizing: border-box;
+    transition: var(--transition);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(126, 87, 194, 0.2);
+}
+
+button[type="submit"], .primary-btn {
+    background-color: var(--accent-primary);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 500;
+    width: 100%;
+    transition: var(--transition);
+    margin-top: 10px;
+}
+
+button[type="submit"]:hover, .primary-btn:hover {
+    background-color: var(--accent-secondary);
+    transform: translateY(-2px);
+}
+
+/* Login and Register pages - formulaires avec bordures blanches */
+.login-container, .register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 120px);
+    padding: 20px;
+}
+
+.login-container h1, .register-container h2 {
+    margin-bottom: 25px;
+    color: white;
+}
+
+/* Formulaires de connexion et d'inscription avec bordure blanche */
+.login-container form, .register-container form {
+    background-color: var(--bg-secondary);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    max-width: 500px;
+    margin: 0 auto;
+    border: 1px solid white;  
+}
+
+/* Champs de formulaire avec bordure blanche */
+.login-container input, .register-container input,
+.login-container select, .register-container select,
+.login-container textarea, .register-container textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid white;  
+    border-radius: var(--border-radius);
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    box-sizing: border-box;
+    transition: var(--transition);
+    margin-bottom: 15px;
+}
+
+.register-container button[type="button"] {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--bg-tertiary);
+    padding: 10px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: var(--transition);
+}
+
+.register-container button[type="button"]:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+/* Home page */
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.event-card {
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+}
+
+.event-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 2px solid var(--accent-primary);
+}
+
+.event-card-content {
+    padding: 20px;
+}
+
+.event-card h2 {
+    margin-top: 0;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+}
+
+.event-card p {
+    color: var(--text-secondary);
+    margin: 8px 0;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.card-actions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.reserve-btn {
+    background-color: var(--success);
+    color: white;
+}
+
+.reserve-btn:hover {
+    background-color: #388e3c;
+    transform: translateY(-2px);
+}
+
+.edit-btn {
+    background-color: var(--info);
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #1976d2;
+    transform: translateY(-2px);
+}
+
+.delete-btn {
+    background-color: var(--error);
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #d32f2f;
+    transform: translateY(-2px);
+}
+
+/* Notifications */
+.notification-btn {
+    font-size: 28px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    color: var(--text-primary);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background-color: var(--error);
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1;
+    min-width: 20px;
+    text-align: center;
+    z-index: 2;
+}
+
+.notification-panel {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--bg-tertiary);
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    width: 280px;
+    z-index: 9999;
+    padding: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.notification-clear {
+    font-size: 12px;
+    padding: 5px 10px;
+    border: none;
+    background-color: var(--error);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.notification-item {
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.notification-add {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left: 3px solid var(--success);
+}
+
+.notification-update {
+    background-color: rgba(33, 150, 243, 0.1);
+    border-left: 3px solid var(--info);
+}
+
+.notification-delete {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-left: 3px solid var(--error);
+}
+
+.notification-time {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+/* Event Detail Page */
+.event-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.event-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+    background-color: var(--bg-secondary);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.event-header img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    border: 3px solid var(--accent-primary);
+}
+
+.event-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    color: var(--accent-primary);
+}
+
+.event-info {
+    text-align: center;
+}
+
+.event-info p {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.admin-controls {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.admin-controls h3 {
+    width: 100%;
+    text-align: center;
+    margin: 0 0 15px 0;
+    color: var(--accent-primary);
+}
+
+/* Seating chart */
+.seating-section {
+    margin-top: 30px;
+    background-color: var(--bg-secondary);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.screen {
+    width: 80%;
+    height: 30px;
+    background-color: var(--bg-tertiary);
+    margin: 0 auto 40px auto;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    color: var(--text-secondary);
+    position: relative;
+}
+
+.screen::after {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 0;
+    width: 100%;
+    height: 15px;
+    background: linear-gradient(to bottom, rgba(126, 87, 194, 0.3), transparent);
+}
+
+.seats-container {
+    display: grid;
+    gap: 8px;
+    justify-content: center;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 20px 0;
+}
+
+.seat {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+    font-size: 12px;
+    border: 2px solid var(--bg-tertiary);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.seat-available {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.seat-available:hover {
+    background-color: rgba(126, 87, 194, 0.2);
+    border-color: var(--accent-primary);
+    transform: scale(1.1);
+}
+
+.seat-selected {
+    background-color: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-secondary);
+    cursor: pointer;
+}
+
+.seat-reserved {
+    background-color: var(--error);
+    color: white;
+    border-color: #d32f2f;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.seat-legend {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 30px;
+    padding: 15px;
+    background-color: var(--bg-tertiary);
+    border-radius: var(--border-radius);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+}
+
+.legend-color {
+    width: 25px;
+    height: 25px;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+/* Dashboard */
+.tickets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.ticket-item {
+    background-color: var(--bg-secondary);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    display: flex;
+    gap: 25px;
+    transition: var(--transition);
+}
+
+.ticket-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.ticket-image img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
+.ticket-details {
+    flex: 1;
+}
+
+.ticket-details h2 {
+    color: rgb(13, 13, 13);
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.ticket-details p {
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+}
+
+.view-event-btn {
+    display: inline-block;
+    background-color: var(--accent-primary);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    margin-top: 10px;
+    transition: var(--transition);
+}
+
+.view-event-btn:hover {
+    background-color: var(--accent-secondary);
+    transform: translateY(-2px);
+}
+
+/* Empty states */
+.empty-state {
+    text-align: center;
+    padding: 50px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+/* Loading and error states */
+.loading-container, .error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    font-size: 1.5rem;
+}
+
+.error-container {
+    color: var(--error);
+}
+
+/* Users page */
+.user-card {
+    margin-bottom: 30px;
+    padding: 25px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.user-card h2 {
+    color: var(--accent-primary);
+    border-bottom: 1px solid var(--bg-tertiary);
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+.reservation-list {
+    margin-top: 15px;
+}
+
+.reservation-item {
+    margin-bottom: 12px;
+    padding: 10px 15px;
+    background-color: var(--bg-tertiary);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.reservation-item:hover {
+    transform: translateX(5px);
+    box-shadow: -2px 0 0 var(--accent-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .event-card {
+        width: 100%;
+    }
+    
+    .ticket-item {
+        flex-direction: column;
+    }
+    
+    .ticket-image {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .ticket-image img {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .seats-container {
+        grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)) !important;
+    }
+    
+    .admin-controls {
+        flex-direction: column;
+    }
+    
+    .nav-links {
+        gap: 15px;
+    }
+}
