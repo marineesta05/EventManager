@@ -7,6 +7,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const sql = require("../database.js"); 
 const sgMail = require('@sendgrid/mail');
+const calendar = require("./calendar");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 
@@ -45,10 +46,53 @@ app.get("/events/:id/seats", async (req, res) => {
     }
 });
 
+// OAuth callback route
+app.get("/auth/google/callback", async (req, res) => {
+    const { code, state } = req.query;
+    const userId = state; // User ID was passed in the state parameter
+    
+    try {
+        // Exchange code for tokens
+        const tokens = await calendar.getTokensFromCode(code);
+        
+        // Store tokens in database
+        await calendar.storeUserTokens(userId, tokens, sql);
+        
+        // Redirect to a success page
+        res.redirect("/calendar-connected");
+    } catch (error) {
+        console.error("Error during Google auth callback:", error);
+        res.status(500).json({ error: "Failed to authenticate with Google" });
+    }
+});
 
+// Get Google auth URL
+app.get("/auth/google", (req, res) => {
+    const { userId } = req.query;
+    if (!userId) {
+        return res.status(400).json({ error: "User ID is required" });
+    }
+    
+    const authUrl = calendar.getAuthUrl();
+    // Pass userId as state parameter
+    res.json({ authUrl: `${authUrl}&state=${userId}` });
+});
+
+// Check if user has connected their Google Calendar
+app.get("/users/:id/calendar-status", async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+        const tokens = await calendar.getUserTokens(id, sql);
+        res.json({ connected: !!tokens });
+    } catch (error) {
+        console.error("Error checking calendar status:", error);
+        res.status(500).json({ error: "Failed to check calendar status" });
+    }
+});
 
 app.post("/reserve", async (req, res) => {
-    const { user_id, event_id, seat_numbers, email } = req.body;
+    const { user_id, event_id, seat_numbers, email, add_to_calendar } = req.body;
 
     try {
         const seatIds = [];
@@ -100,6 +144,7 @@ app.post("/reserve", async (req, res) => {
             }
             console.log("EMAIL FOURNI OU TROUVÉ:", userEmail);
 
+            // Send confirmation email
             if (userEmail) {
                 const formattedDate = new Date(eventDetails[0].datetime).toLocaleString('fr-FR');
                 
@@ -129,6 +174,35 @@ app.post("/reserve", async (req, res) => {
                 await sgMail.send(msg);
                 console.log("Confirmation email sent to:", userEmail);
             }
+            
+            // Add event to user's Google Calendar if requested
+            if (add_to_calendar) {
+                try {
+                    // Get user's Google Calendar tokens
+                    const tokens = await calendar.getUserTokens(user_id, sql);
+                    
+                    if (tokens) {
+                        // Check if token is expired
+                        if (tokens.expiry_date < Date.now()) {
+                            // Refresh token
+                            tokens = await calendar.refreshAccessToken(user_id, tokens, sql);
+                        }
+                        
+                        // Add event to calendar
+                        await calendar.addEventToCalendar(tokens.access_token, {
+                            title: eventDetails[0].title,
+                            location: eventDetails[0].location,
+                            datetime: eventDetails[0].datetime,
+                            seats: seat_numbers
+                        });
+                        
+                        console.log("Event added to Google Calendar for user:", user_id);
+                    }
+                } catch (error) {
+                    console.error("Error adding event to Google Calendar:", error);
+                    // We don't want to fail the reservation if calendar sync fails
+                }
+            }
         }
 
         io.emit("seat_reserved", {
@@ -136,12 +210,31 @@ app.post("/reserve", async (req, res) => {
             seatIds: seat_numbers,
         });
 
-        res.status(200).json({ message: "Seats reserved and confirmation email sent", reserved: seat_numbers });
+        res.status(200).json({ 
+            message: "Seats reserved and confirmation email sent", 
+            reserved: seat_numbers,
+            calendarAdded: add_to_calendar
+        });
     } catch (err) {
         console.error("Reservation error:", err.message);
         res.status(400).json({ error: err.message });
     }
 });
+
+// Nouvelle route pour échanger le code contre les tokens
+app.post("/auth/google/tokens", async (req, res) => {
+    const { code, userId } = req.body;
+    
+    try {
+      const tokens = await calendar.getTokensFromCode(code);
+      await calendar.storeUserTokens(userId, tokens, sql);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error exchanging code:", error);
+      res.status(500).json({ error: "Failed to exchange code" });
+    }
+  });
 
 server.listen(3003, () => {
     console.log("Reservation Service running on port 3003");

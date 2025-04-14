@@ -11,6 +11,10 @@ const EventId = () => {
     const [reservedSeats, setReservedSeats] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [userEmail, setUserEmail] = useState("");
+    const [userId, setUserId] = useState(null);
+    const [calendarConnected, setCalendarConnected] = useState(false);
+    const [addToCalendar, setAddToCalendar] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -19,11 +23,17 @@ const EventId = () => {
             try {
                 const decoded = jwtDecode(token);
                 const user_id = decoded.userId || decoded.id || decoded.user_id || decoded.sub;
+                setUserId(user_id);
                 const userRole = decoded.role;
-                
+                if (decoded.email) {
+                    setUserEmail(decoded.email);
+                }
                 setIsAdmin(userRole === 'admin');
                 console.log("User ID:", user_id); 
                 console.log("User Role:", userRole);
+                
+                // Check if user has connected their Google Calendar
+                checkCalendarStatus(user_id);
             } catch (error) {
                 console.error("Failed to decode token:", error.message);
             }
@@ -32,6 +42,24 @@ const EventId = () => {
         }
     }, []);
     
+    const checkCalendarStatus = async (userId) => {
+        try {
+            const response = await axios.get(`http://localhost:3003/users/${userId}/calendar-status`);
+            setCalendarConnected(response.data.connected);
+        } catch (error) {
+            console.error("Error checking calendar status:", error);
+        }
+    };
+    
+    const connectGoogleCalendar = async () => {
+        try {
+            const response = await axios.get(`http://localhost:3003/auth/google?userId=${userId}`);
+            window.location.href = response.data.authUrl;
+        } catch (error) {
+            console.error("Error connecting to Google Calendar:", error);
+            alert("Failed to connect to Google Calendar. Please try again.");
+        }
+    };
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -85,17 +113,29 @@ const EventId = () => {
             const decoded = jwtDecode(token);
             const user_id = decoded.userId || decoded.id || decoded.user_id || decoded.sub;
             
-            await axios.post("http://localhost:3003/reserve", {
+            
+            let email = userEmail;
+            if (!email && decoded.email) {
+                email = decoded.email;
+            }
+            
+            const reservationResponse = await axios.post("http://localhost:3003/reserve", {
                 user_id,
                 event_id: parseInt(id),
-                seat_numbers: selectedSeats
+                seat_numbers: selectedSeats,
+                email: email,
+                add_to_calendar: addToCalendar
             });
     
             setReservedSeats([...reservedSeats, ...selectedSeats]);
-            
             setSelectedSeats([]);
             
-            alert("Réservation réussie !");
+            let message = "Réservation réussie ! Un email de confirmation a été envoyé.";
+            if (addToCalendar && calendarConnected) {
+                message += " L'événement a été ajouté à votre Google Calendar.";
+            }
+            
+            alert(message);
             window.location.href = '/home';
         } catch (error) {
             console.error("Reservation failed:", error.response?.data || error.message);
@@ -190,12 +230,11 @@ const EventId = () => {
                         height: "200px", 
                         objectFit: "cover",
                         borderRadius: "8px",
-                        marginBottom: "15px",
-                        border: "none",
+                        marginBottom: "15px"
                     }} 
                 />
-                <h1 style={{ fontSize: "2rem", marginBottom: "10px", color: "gray" }}>{event.title}</h1>
-                <div className="event-info" style={{ textAlign: "center", color: "gray" }}>
+                <h1 style={{ fontSize: "2rem", marginBottom: "10px" }}>{event.title}</h1>
+                <div className="event-info" style={{ textAlign: "center" }}>
                     <p style={{ fontSize: "1.2rem", marginBottom: "5px" }}>
                         <strong>Date:</strong> {new Date(event.datetime).toLocaleString()}
                     </p>
@@ -219,11 +258,11 @@ const EventId = () => {
                     justifyContent: "center",
                     gap: "15px"
                 }}>
-                    <h3 style={{ margin: "0 0 15px 0", width: "100%", textAlign: "center", color: "gray" }}>Administration</h3>
+                    <h3 style={{ margin: "0 0 15px 0", width: "100%", textAlign: "center" }}>Administration</h3>
                     <button 
                         onClick={handleUpdate}
                         style={{ 
-                            backgroundColor: "gray", 
+                            backgroundColor: "#007bff", 
                             color: "white", 
                             border: "none", 
                             padding: "10px 20px", 
@@ -237,7 +276,7 @@ const EventId = () => {
                     <button 
                         onClick={handleDelete}
                         style={{ 
-                            backgroundColor: "#c82333", 
+                            backgroundColor: "#dc3545", 
                             color: "white", 
                             border: "none", 
                             padding: "10px 20px", 
@@ -366,6 +405,87 @@ const EventId = () => {
                         </span>
                     </h3>
                     
+                 
+                    <div style={{
+                        marginBottom: "20px",
+                        backgroundColor: "#f8f9fa",
+                        padding: "15px",
+                        borderRadius: "8px",
+                        textAlign: "left"
+                    }}>
+                        <div style={{ marginBottom: "15px" }}>
+                            <h4 style={{ marginBottom: "10px" }}>Options supplémentaires</h4>
+                            <div style={{ 
+                                display: "flex", 
+                                alignItems: "center",
+                                gap: "8px"
+                            }}>
+                                <input 
+                                    type="checkbox" 
+                                    id="addToCalendar" 
+                                    checked={addToCalendar}
+                                    onChange={(e) => setAddToCalendar(e.target.checked)}
+                                    disabled={!calendarConnected}
+                                    style={{ cursor: calendarConnected ? "pointer" : "not-allowed" }}
+                                />
+                                <label htmlFor="addToCalendar">
+                                    Ajouter à mon Google Calendar
+                                </label>
+                            </div>
+                        </div>
+                        
+                        {!calendarConnected && (
+                            <div style={{ marginTop: "10px" }}>
+                                <button 
+                                    onClick={connectGoogleCalendar}
+                                    style={{ 
+                                        backgroundColor: "#4285F4", 
+                                        color: "white", 
+                                        border: "none", 
+                                        padding: "8px 15px", 
+                                        borderRadius: "5px",
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                        fontSize: "14px"
+                                    }}
+                                >
+                                    <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                                        <path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/>
+                                        <path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/>
+                                        <path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34C2.85 17.09 2 20.45 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/>
+                                        <path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/>
+                                        <path fill="none" d="M2 2h44v44H2z"/>
+                                    </svg>
+                                    Connecter Google Calendar
+                                </button>
+                                <p style={{ 
+                                    fontSize: "13px", 
+                                    color: "#666",
+                                    marginTop: "8px"
+                                }}>
+                                    Connectez votre compte Google Calendar pour ajouter automatiquement les événements réservés à votre agenda.
+                                </p>
+                            </div>
+                        )}
+                        
+                        {calendarConnected && (
+                            <p style={{ 
+                                fontSize: "13px", 
+                                color: "#28a745", 
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "5px"
+                            }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                                </svg>
+                                Google Calendar connecté
+                            </p>
+                        )}
+                    </div>
+                    
                     <button 
                         onClick={handleReserve} 
                         disabled={selectedSeats.length === 0}
@@ -382,10 +502,10 @@ const EventId = () => {
                         }}
                     >
                         Réserver {selectedSeats.length > 0 ? `(${selectedSeats.length} place${selectedSeats.length > 1 ? 's' : ''})` : ''}
-                        
                     </button>
                 </div>
             </div>
+        
         </div>
     );
 };
