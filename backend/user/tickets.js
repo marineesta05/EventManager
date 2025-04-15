@@ -176,8 +176,8 @@ app.delete('/cancel-ticket/:eventId', authenticateToken, async (req, res) => {
                         const msg = {
                             to: userEmail[0].email,
                             from: process.env.SENDGRID_FROM_EMAIL,
-                            subject: `Place disponible pour l'événement ${eventDetails[0].title}`,
-                            text: `Bonjour,\n\nUne place vient de se libérer pour l'événement "${eventDetails[0].title}".\n\nDétails:\n- Date: ${formattedDate}\n- Lieu: ${eventDetails[0].location}\n\nMerci de confirmer votre réservation.\n\nCordialement,\nL'équipe d'organisation`,
+                            subject: Place disponible pour l'événement ${eventDetails[0].title},
+                            text: Bonjour,\n\nUne place vient de se libérer pour l'événement "${eventDetails[0].title}".\n\nDétails:\n- Date: ${formattedDate}\n- Lieu: ${eventDetails[0].location}\n\nMerci de confirmer votre réservation.\n\nCordialement,\nL'équipe d'organisation,
                             html: `
                                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                                     <h2 style="color: #333; text-align: center;">Place disponible pour l'événement</h2>
