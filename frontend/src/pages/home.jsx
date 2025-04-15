@@ -262,8 +262,8 @@ const Home = () => {
                                         <li key={notif.id} style={{ 
                                             marginBottom: '8px', 
                                             fontSize: '14px',
-                                            backgroundColor: notif.type === 'add' ? 'green' : 
-                                                           notif.type === 'update' ? '#e6f7ff' : '#fff1f0',
+                                            backgroundColor: notif.type === 'add' ? '#d4edda' : 
+                                                           notif.type === 'update' ? '#d1ecf1' : '#f8d7da',
                                             padding: '8px',
                                             borderRadius: '4px'
                                         }}>

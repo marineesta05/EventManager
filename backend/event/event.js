@@ -117,13 +117,18 @@ app.put('/events/:id', authenticateToken, checkAdminRole, async (req, res) => {
         }
         
         const current = currentEvent[0];
-        
+        console.log('TYPE CHECK:', {
+            capacity,
+            typeofCapacity: typeof capacity,
+            
+          });
+          
         const result = await sql`
             UPDATE events SET 
                 title = COALESCE(${title}, ${current.title}),
                 location = COALESCE(${location}, ${current.location}),
                 datetime = COALESCE(${datetime}, ${current.datetime}),
-                capacity = COALESCE(${capacity}, ${current.capacity}),
+                capacity = COALESCE(${capacity}::int, ${current.capacity}),
                 image = COALESCE(${image}, ${current.image})
             WHERE id = ${id}
             RETURNING id, title, location, datetime, capacity, image

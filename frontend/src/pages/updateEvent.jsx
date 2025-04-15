@@ -8,6 +8,7 @@ const UpdateEvent = () => {
     const token = localStorage.getItem("token");
 
     const [formData, setFormData] = useState({
+        image: "",
         title: "",
         location: "",
         datetime: "",
@@ -68,6 +69,17 @@ const UpdateEvent = () => {
             {success && <p style={{ color: "green" }}>{success}</p>}
 
             <form onSubmit={handleSubmit}>
+            <div>
+                    <label htmlFor="image">Image :</label>
+                    <input
+                        type="text"
+                        id="image"
+                        name="image"
+                        value={formData.image}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
                 <div>
                     <label htmlFor="title">Title :</label>
                     <input
