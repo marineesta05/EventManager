@@ -13,19 +13,17 @@ const GoogleCallback = () => {
       try {
         const urlParams = new URLSearchParams(location.search);
         const code = urlParams.get('code');
-        const state = urlParams.get('state'); // Récupérer l'ID utilisateur
+        const state = urlParams.get('state'); 
         
         if (!code) {
           throw new Error('No authorization code found');
         }
   
-        // Envoyer le code au backend pour échange contre les tokens
         const response = await axios.post('http://localhost:3003/auth/google/tokens', {
           code,
           userId: state
         });
   
-        // Rediriger vers la page de confirmation
         navigate('/calendar-connected');
       } catch (err) {
         console.error('Error:', err);
@@ -64,7 +62,6 @@ const GoogleCallback = () => {
     );
   }
 
-  // Loading indicator while processing
   return (
     <div style={{ 
       textAlign: 'center', 

@@ -131,7 +131,6 @@ async function getUserTokens(userId, sql) {
   }
 }
 
-// Function to refresh token if expired
 async function refreshAccessToken(userId, tokens, sql) {
   try {
     oAuth2Client.setCredentials({
@@ -140,7 +139,7 @@ async function refreshAccessToken(userId, tokens, sql) {
     
     const { credentials } = await oAuth2Client.refreshAccessToken();
     
-    // Update tokens in database
+    
     await sql`
       UPDATE user_calendar_tokens 
       SET access_token = ${credentials.access_token},
