@@ -12,6 +12,8 @@ import Navbar from "./pages/navBar";
 import Dashboard from "./pages/dashboard";
 import './styles/appcss.css';
 import "./App.css";
+import CalendarConnected from "./pages/calendarConfirmation";
+import GoogleCallback from "./pages/GoogleCallback"; 
 
 const token = localStorage.getItem("token");
 if (token) {
@@ -33,7 +35,8 @@ function App() {
           <Route path="/updateEvent/:id" element={<Update />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
-          
+          <Route path="/calendar-connected" element={<CalendarConnected />} />
+          <Route path="/auth/google/callback" element={<GoogleCallback />} />
         </Routes>
     </Router>
   );
