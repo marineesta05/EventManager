@@ -38,6 +38,27 @@ const Dashboard = () => {
         
         fetchTickets();
     }, [navigate]);
+    const handleCancelReservation = async (eventId) => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+    
+        try {
+            await axios.delete(`http://localhost:3004/cancel-ticket/${eventId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+    
+            setTickets(prev => prev.filter(ticket => ticket.event_id !== eventId));
+        } catch (error) {
+            console.error("Erreur lors de l'annulation :", error);
+            alert("Échec de l'annulation de votre réservation.");
+        }
+    };
+    
 
     const ticketsByEvent = tickets.reduce((acc, ticket) => {
         const eventId = ticket.event_id;
@@ -147,6 +168,28 @@ const Dashboard = () => {
                                 >
                                     Voir l'événement
                                 </button>
+
+                                <button 
+                                    onClick={() => {
+                                        const confirmCancel = window.confirm("Êtes-vous sûr de vouloir annuler votre réservation pour cet événement ?");
+                                        if (confirmCancel) {
+                                            handleCancelReservation(event.id);
+                                        }
+                                    }}
+                                    style={{
+                                        backgroundColor: "#dc3545",
+                                        color: "white",
+                                        border: "none",
+                                        padding: "8px 15px",
+                                        borderRadius: "5px",
+                                        marginLeft: "10px",
+                                        cursor: "pointer"
+                                    }}
+                                >
+                                    Annuler ma réservation
+                                </button>
+
+
                             </div>
                         </div>
                     ))}

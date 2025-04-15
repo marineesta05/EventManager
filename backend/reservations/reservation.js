@@ -52,43 +52,48 @@ app.post("/reserve", async (req, res) => {
 
     try {
         const seatIds = [];
-
-        await sql.begin(async (sql) => {
-            for (const seatNumber of seat_numbers) {
-                const seat = await sql`
-                    SELECT id, is_reserved FROM seats
-                    WHERE event_id = ${event_id} AND seat_number = ${seatNumber}
-                    FOR UPDATE
-                `;
-
-                if (!seat[0]) {
-                    throw new Error(`Seat ${seatNumber} does not exist`);
-                }
-
-                if (seat[0].is_reserved) {
-                    throw new Error(`Seat ${seatNumber} already reserved`);
-                }
-
-                const seatId = seat[0].id;
-
-                await sql`
-                    INSERT INTO reservations (user_id, event_id, seat_id)
-                    VALUES (${user_id}, ${event_id}, ${seatId})
-                `;
-
-                await sql`
-                    UPDATE seats SET is_reserved = TRUE WHERE id = ${seatId}
-                `;
-
-                seatIds.push(seatId);
-            }
-        });
-        
-        const eventDetails = await sql`
-            SELECT title, datetime, location FROM events WHERE id = ${event_id}
+        const availableSeats = await sql`
+            SELECT COUNT(*) AS available_seats
+            FROM seats
+            WHERE event_id = ${event_id} AND is_reserved = FALSE
         `;
-        
-        if (eventDetails.length > 0) {
+
+        if (availableSeats[0].available_seats > 0) {
+            await sql.begin(async (sql) => {
+                for (const seatNumber of seat_numbers) {
+                    const seat = await sql`
+                        SELECT id, is_reserved FROM seats
+                        WHERE event_id = ${event_id} AND seat_number = ${seatNumber}
+                        FOR UPDATE
+                    `;
+
+                    if (!seat[0]) {
+                        throw new Error(`Seat ${seatNumber} does not exist`);
+                    }
+
+                    if (seat[0].is_reserved) {
+                        throw new Error(`Seat ${seatNumber} already reserved`);
+                    }
+
+                    const seatId = seat[0].id;
+
+                    await sql`
+                        INSERT INTO reservations (user_id, event_id, seat_id)
+                        VALUES (${user_id}, ${event_id}, ${seatId})
+                    `;
+
+                    await sql`
+                        UPDATE seats SET is_reserved = TRUE WHERE id = ${seatId}
+                    `;
+
+                    seatIds.push(seatId);
+                }
+            });
+
+            const eventDetails = await sql`
+                SELECT title, datetime, location FROM events WHERE id = ${event_id}
+            `;
+
             let userEmail = email;
             if (!userEmail) {
                 const userInfo = await sql`
@@ -98,7 +103,6 @@ app.post("/reserve", async (req, res) => {
                     userEmail = userInfo[0].email;
                 }
             }
-            console.log("EMAIL FOURNI OU TROUVÉ:", userEmail);
 
             if (userEmail) {
                 const formattedDate = new Date(eventDetails[0].datetime).toLocaleString('fr-FR');
@@ -124,19 +128,21 @@ app.post("/reserve", async (req, res) => {
                         </div>
                     `
                 };
-                console.log("Envoi du mail avec :", msg);
-
+                
                 await sgMail.send(msg);
                 console.log("Confirmation email sent to:", userEmail);
             }
+            io.emit("seat_reserved", { eventId: event_id, seatIds: seat_numbers });
+
+            res.status(200).json({ message: "Seats reserved and confirmation email sent", reserved: seat_numbers });
+        } else {
+            await sql`
+                INSERT INTO waiting_list (user_id, event_id) 
+                VALUES (${user_id}, ${event_id})
+            `;
+            res.status(200).json({ message: "Aucune place disponible, vous êtes ajouté à la liste d'attente." });
         }
 
-        io.emit("seat_reserved", {
-            eventId: event_id,
-            seatIds: seat_numbers,
-        });
-
-        res.status(200).json({ message: "Seats reserved and confirmation email sent", reserved: seat_numbers });
     } catch (err) {
         console.error("Reservation error:", err.message);
         res.status(400).json({ error: err.message });

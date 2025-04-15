@@ -11,6 +11,10 @@ const EventId = () => {
     const [reservedSeats, setReservedSeats] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [userId, setUserId] = useState(null);
+    const [token, setToken] = useState(null);
+    const [waitingMessage, setWaitingMessage] = useState("");
+
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -22,6 +26,8 @@ const EventId = () => {
                 const userRole = decoded.role;
                 
                 setIsAdmin(userRole === 'admin');
+                setUserId(user_id);
+                setToken(token);
                 console.log("User ID:", user_id); 
                 console.log("User Role:", userRole);
             } catch (error) {
@@ -100,6 +106,28 @@ const EventId = () => {
         } catch (error) {
             console.error("Reservation failed:", error.response?.data || error.message);
             alert(error.response?.data?.error || "Reservation error");
+        }
+    };
+
+    const handleJoinWaitingList = async () => {
+        try {
+            const response = await axios.post("http://localhost:3003/reserve", {
+                user_id: userId,
+                event_id: parseInt(id),
+                seat_numbers: []
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            setWaitingMessage(response.data.message || "Ajouté à la liste d'attente !");
+            alert(response.data.message || "Ajouté à la liste d'attente !");
+        } catch (error) {
+            console.error("Erreur liste d’attente :", error.response?.data || error.message);
+            setWaitingMessage(error.response?.data?.error || "Erreur lors de l’inscription.");
+            alert(error.response?.data?.error || "Erreur lors de l’inscription.");
         }
     };
     
@@ -272,6 +300,32 @@ const EventId = () => {
                     fontSize: "14px",
                     color: "#555"
                 }}>SCÈNE</div>
+
+                {reservedSeats.length === event.capacity && (
+                                    <div style={{ textAlign: "center", marginBottom: "20px" }}>
+                                        <p style={{ marginBottom: "10px", color: "#6c757d" }}>
+                                            Toutes les places sont réservées.
+                                        </p>
+                                        <button 
+                                            onClick={handleJoinWaitingList}
+                                            style={{
+                                                backgroundColor: "#dc3545",
+                                                color: "#333",
+                                                border: "none",
+                                                padding: "12px 20px",
+                                                borderRadius: "5px",
+                                                cursor: "pointer",
+                                                fontWeight: "bold",
+                                                fontSize: "16px"
+                                            }}
+                                        >
+                                            S’inscrire sur la liste d’attente
+                                        </button>
+                                        {waitingMessage && (
+                                            <p style={{ color: "#28a745", marginTop: "10px" }}>{waitingMessage}</p>
+                                        )}
+                                    </div>
+                                )}
                 
                 <div className="seats-container" style={{
                     display: "grid",
