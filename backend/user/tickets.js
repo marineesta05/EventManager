@@ -23,42 +23,42 @@ const authenticateToken = (req, res, next) => {
       next();
     });
 };
+
 function checkAdminRole(req, res, next) {
   if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Accès interdit : admin uniquement' });
   }
   next(); 
 }
-  
-  app.get('/my-tickets', authenticateToken, async (req, res) => {
-      const userId = req.user.userId; 
-      
-      try {
-        const tickets = await sql`
-        SELECT 
-            reservations.id AS ticket_id,
-            events.id AS event_id,
-            events.title AS event_title,
-            events.datetime,
-            events.location,
-            events.image,
-            seats.seat_number
-        FROM reservations
-        INNER JOIN events ON reservations.event_id = events.id
-        INNER JOIN seats ON reservations.seat_id = seats.id
-        WHERE reservations.user_id = ${userId}
-        ORDER BY events.datetime DESC
-    `;
+
+app.get('/my-tickets', authenticateToken, async (req, res) => {
+    const userId = req.user.userId; 
     
-    res.status(200).json(tickets);
-      } catch (error) {
-          console.error(error);
-          res.status(500).json({ error: 'Impossible de récupérer les réservations' });
-      }
-  });
+    try {
+        const tickets = await sql`
+            SELECT 
+                reservations.id AS ticket_id,
+                events.id AS event_id,
+                events.title AS event_title,
+                events.datetime,
+                events.location,
+                events.image,
+                seats.seat_number
+            FROM reservations
+            INNER JOIN events ON reservations.event_id = events.id
+            INNER JOIN seats ON reservations.seat_id = seats.id
+            WHERE reservations.user_id = ${userId}
+            ORDER BY events.datetime DESC
+        `;
+    
+        res.status(200).json(tickets);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Impossible de récupérer les réservations' });
+    }
+});
 
-
-  app.get('/admin/users', authenticateToken, checkAdminRole, async (req, res) => {
+app.get('/admin/users', authenticateToken, checkAdminRole, async (req, res) => {
     try {
         const users = await sql`SELECT id, email FROM users`;
         const reservations = await sql`
@@ -72,6 +72,7 @@ function checkAdminRole(req, res, next) {
             INNER JOIN events ON reservations.event_id = events.id
             INNER JOIN seats ON reservations.seat_id = seats.id
         `;
+        
         const userMap = users.map(user => ({
             ...user,
             reservations: reservations
@@ -105,6 +106,7 @@ app.delete('/cancel-ticket/:eventId', authenticateToken, async (req, res) => {
         if (eventDetails.length === 0) {
             return res.status(404).json({ error: "Événement non trouvé" });
         }
+
         const reservedSeats = await sql`
             SELECT seats.id AS seat_id
             FROM reservations
@@ -176,8 +178,8 @@ app.delete('/cancel-ticket/:eventId', authenticateToken, async (req, res) => {
                         const msg = {
                             to: userEmail[0].email,
                             from: process.env.SENDGRID_FROM_EMAIL,
-                            subject: Place disponible pour l'événement ${eventDetails[0].title},
-                            text: Bonjour,\n\nUne place vient de se libérer pour l'événement "${eventDetails[0].title}".\n\nDétails:\n- Date: ${formattedDate}\n- Lieu: ${eventDetails[0].location}\n\nMerci de confirmer votre réservation.\n\nCordialement,\nL'équipe d'organisation,
+                            subject: `Place disponible pour l'événement ${eventDetails[0].title}`,
+                            text: `Bonjour,\n\nUne place vient de se libérer pour l'événement "${eventDetails[0].title}".\n\nDétails:\n- Date: ${formattedDate}\n- Lieu: ${eventDetails[0].location}\n\nMerci de confirmer votre réservation.\n\nCordialement,\nL'équipe d'organisation`,
                             html: `
                                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                                     <h2 style="color: #333; text-align: center;">Place disponible pour l'événement</h2>
@@ -207,4 +209,5 @@ app.delete('/cancel-ticket/:eventId', authenticateToken, async (req, res) => {
         res.status(500).json({ error: "Erreur lors de l'annulation de la réservation" });
     }
 });
+
 app.listen(3004, () => console.log("Tickets Service running on port 3004"));

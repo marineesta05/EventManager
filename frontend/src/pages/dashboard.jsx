@@ -22,7 +22,7 @@ const Dashboard = () => {
                 setLoading(true);
                 const response = await axios.get("http://localhost:3004/my-tickets", {
                     headers: {
-                        Authorization: Bearer ${token}
+                        Authorization: `Bearer ${token}`
                     }
                 });
                 
@@ -38,6 +38,7 @@ const Dashboard = () => {
         
         fetchTickets();
     }, [navigate]);
+
     const handleCancelReservation = async (eventId) => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -46,9 +47,9 @@ const Dashboard = () => {
         }
     
         try {
-            await axios.delete(http://localhost:3004/cancel-ticket/${eventId}, {
+            await axios.delete(`http://localhost:3004/cancel-ticket/${eventId}`, {
                 headers: {
-                    Authorization: Bearer ${token}
+                    Authorization: `Bearer ${token}`
                 }
             });
     
@@ -59,7 +60,6 @@ const Dashboard = () => {
         }
     };
     
-
     const ticketsByEvent = tickets.reduce((acc, ticket) => {
         const eventId = ticket.event_id;
         if (!acc[eventId]) {
@@ -156,7 +156,7 @@ const Dashboard = () => {
                                 </p>
                                 
                                 <button 
-                                    onClick={() => navigate(/event/${event.id})}
+                                    onClick={() => navigate(`/event/${event.id}`)}
                                     style={{
                                         backgroundColor: "gray",
                                         color: "white",
@@ -188,8 +188,6 @@ const Dashboard = () => {
                                 >
                                     Annuler ma réservation
                                 </button>
-
-
                             </div>
                         </div>
                     ))}

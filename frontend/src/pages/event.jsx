@@ -15,7 +15,6 @@ const EventId = () => {
     const [token, setToken] = useState(null);
     const [waitingMessage, setWaitingMessage] = useState("");
 
-
     useEffect(() => {
         const token = localStorage.getItem("token");
     
@@ -37,13 +36,12 @@ const EventId = () => {
             console.warn("No token found in localStorage.");
         }
     }, []);
-    
 
     useEffect(() => {
         const fetchEvent = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get(http://localhost:3002/events/${id});
+                const response = await axios.get(`http://localhost:3002/events/${id}`);
                 setEvent(response.data);  
             } catch (error) {
                 console.error("Error fetching event details:", error);
@@ -54,7 +52,7 @@ const EventId = () => {
     
         const fetchReservedSeats = async () => {
             try {
-                const res = await axios.get(http://localhost:3003/events/${id}/seats);
+                const res = await axios.get(`http://localhost:3003/events/${id}/seats`);
                 const takenSeats = res.data.filter(seat => seat.is_reserved).map(seat => seat.seat_number);
                 setReservedSeats(takenSeats);
             } catch (error) {
@@ -74,7 +72,7 @@ const EventId = () => {
     
         return () => socket.disconnect();
     }, [id]);
-    
+
     const handleSeatClick = (seatNumber) => {
         if (selectedSeats.includes(seatNumber)) {
             setSelectedSeats(selectedSeats.filter((seat) => seat !== seatNumber));
@@ -117,7 +115,7 @@ const EventId = () => {
                 seat_numbers: []
             }, {
                 headers: {
-                    Authorization: Bearer ${token},
+                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json"
                 }
             });
@@ -132,7 +130,7 @@ const EventId = () => {
     };
     
     const handleUpdate = () => {
-        window.location.href = /updateEvent/${id};
+        window.location.href = `/updateEvent/${id}`;
     };
 
     const handleDelete = async () => {
@@ -141,9 +139,9 @@ const EventId = () => {
             if (!token) throw new Error("User not authenticated");
             
             if (window.confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) {
-                await axios.delete(http://localhost:3002/events/${id}, {
+                await axios.delete(`http://localhost:3002/events/${id}`, {
                     headers: {
-                        Authorization: Bearer ${token}
+                        Authorization: `Bearer ${token}`
                     }
                 });
                 
@@ -302,34 +300,34 @@ const EventId = () => {
                 }}>SCÈNE</div>
 
                 {reservedSeats.length === event.capacity && (
-                                    <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                                        <p style={{ marginBottom: "10px", color: "#6c757d" }}>
-                                            Toutes les places sont réservées.
-                                        </p>
-                                        <button 
-                                            onClick={handleJoinWaitingList}
-                                            style={{
-                                                backgroundColor: "#dc3545",
-                                                color: "#333",
-                                                border: "none",
-                                                padding: "12px 20px",
-                                                borderRadius: "5px",
-                                                cursor: "pointer",
-                                                fontWeight: "bold",
-                                                fontSize: "16px"
-                                            }}
-                                        >
-                                            S’inscrire sur la liste d’attente
-                                        </button>
-                                        {waitingMessage && (
-                                            <p style={{ color: "#28a745", marginTop: "10px" }}>{waitingMessage}</p>
-                                        )}
-                                    </div>
-                                )}
+                    <div style={{ textAlign: "center", marginBottom: "20px" }}>
+                        <p style={{ marginBottom: "10px", color: "#6c757d" }}>
+                            Toutes les places sont réservées.
+                        </p>
+                        <button 
+                            onClick={handleJoinWaitingList}
+                            style={{
+                                backgroundColor: "#dc3545",
+                                color: "#333",
+                                border: "none",
+                                padding: "12px 20px",
+                                borderRadius: "5px",
+                                cursor: "pointer",
+                                fontWeight: "bold",
+                                fontSize: "16px"
+                            }}
+                        >
+                            S’inscrire sur la liste d’attente
+                        </button>
+                        {waitingMessage && (
+                            <p style={{ color: "#28a745", marginTop: "10px" }}>{waitingMessage}</p>
+                        )}
+                    </div>
+                )}
                 
                 <div className="seats-container" style={{
                     display: "grid",
-                    gridTemplateColumns: repeat(${columns}, 1fr),
+                    gridTemplateColumns: `repeat(${columns}, 1fr)`,
                     gap: "6px",
                     justifyContent: "center",
                     maxWidth: "100%",
@@ -435,8 +433,7 @@ const EventId = () => {
                             marginTop: "10px"
                         }}
                     >
-                        Réserver {selectedSeats.length > 0 ? (${selectedSeats.length} place${selectedSeats.length > 1 ? 's' : ''}) : ''}
-                        
+                        Réserver {selectedSeats.length > 0 ? `(${selectedSeats.length} place${selectedSeats.length > 1 ? 's' : ''})` : ''}
                     </button>
                 </div>
             </div>

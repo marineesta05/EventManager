@@ -9,7 +9,6 @@ const sql = require("../database.js");
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -19,7 +18,6 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-
 io.on("connection", (socket) => {
     console.log("Client connected to WebSocket");
 
@@ -27,7 +25,6 @@ io.on("connection", (socket) => {
         console.log("Client disconnected");
     });
 });
-
 
 app.get("/events/:id/seats", async (req, res) => {
     const { id } = req.params;
@@ -44,8 +41,6 @@ app.get("/events/:id/seats", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch seats" });
     }
 });
-
-
 
 app.post("/reserve", async (req, res) => {
     const { user_id, event_id, seat_numbers, email } = req.body;
@@ -68,11 +63,11 @@ app.post("/reserve", async (req, res) => {
                     `;
 
                     if (!seat[0]) {
-                        throw new Error(Seat ${seatNumber} does not exist);
+                        throw new Error(`Seat ${seatNumber} does not exist`);
                     }
 
                     if (seat[0].is_reserved) {
-                        throw new Error(Seat ${seatNumber} already reserved);
+                        throw new Error(`Seat ${seatNumber} already reserved`);
                     }
 
                     const seatId = seat[0].id;
@@ -110,8 +105,8 @@ app.post("/reserve", async (req, res) => {
                 const msg = {
                     to: userEmail,
                     from: process.env.SENDGRID_FROM_EMAIL,
-                    subject: Confirmation de réservation - ${eventDetails[0].title},
-                    text: Bonjour,\n\nVotre réservation pour l'événement "${eventDetails[0].title}" a été confirmée.\n\nDétails:\n- Date: ${formattedDate}\n- Lieu: ${eventDetails[0].location}\n- Places: ${seat_numbers.join(', ')}\n\nMerci pour votre réservation!\n\nCordialement,\nL'équipe d'organisation,
+                    subject: `Confirmation de réservation - ${eventDetails[0].title}`,
+                    text: `Bonjour,\n\nVotre réservation pour l'événement "${eventDetails[0].title}" a été confirmée.\n\nDétails:\n- Date: ${formattedDate}\n- Lieu: ${eventDetails[0].location}\n- Places: ${seat_numbers.join(', ')}\n\nMerci pour votre réservation!\n\nCordialement,\nL'équipe d'organisation`,
                     html: `
                         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                             <h2 style="color: #333; text-align: center;">Confirmation de réservation</h2>
